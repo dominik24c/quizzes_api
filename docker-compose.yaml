@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  auth_service:
+    build:
+      context: .
+      dockerfile: ./auth/Dockerfile
+    container_name: auth_microservice
+    env_file:
+      - "envs/services/.env.auth"
+
+  users_service:
+    build:
+      context: .
+      dockerfile: ./users/Dockerfile
+    container_name: user_microservice
+    depends_on:
+      - user_mongodb
+    ports:
+      - "9999:9999"
+    env_file:
+      - "./envs/services/.env.users"
+
+  quiz_service:
+    build:
+      context: .
+      dockerfile: ./quiz/Dockerfile
+    container_name: quiz_microservice
+    depends_on:
+      - quiz_mongodb
+    ports:
+      - "9997:9997"
+    env_file:
+      - "./envs/services/.env.quiz"
+  answers_service:
+    build:
+      context: .
+      dockerfile: ./answers/Dockerfile
+    container_name: answers_microservice
+    depends_on:
+      - quiz_mongodb
+    env_file:
+      - "./envs/services/.env.quiz"
+
+  solution_service:
+    build:
+      context: .
+      dockerfile: ./solution/Dockerfile
+    container_name: solution_microservice
+    depends_on:
+      - solution_mongodb
+    ports:
+      - "9996:9996"
+    env_file:
+      - "./envs/services/.env.solution"
+
+  user_mongodb:
+    image: mongo
+    container_name: user_mongodb
+    restart: always
+    env_file:
+      - "./envs/db/.env.users"
+    volumes:
+      - "./users_data:/data/db"
+
+  quiz_mongodb:
+    image: mongo
+    container_name: quiz_mongodb
+    restart: always
+    env_file:
+      - "./envs/db/.env.quiz"
+    volumes:
+      - "./quiz_data:/data/db"
+
+  solution_mongodb:
+    image: mongo
+    container_name: solution_mongodb
+    restart: always
+    env_file:
+      - "./envs/db/.env.solution"
+    volumes:
+      - "./solution_data:/data/db"
+
+volumes:
+  users_data:
+  quiz_data:
+  solution_data:
